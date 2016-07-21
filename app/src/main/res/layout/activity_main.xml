@@ -13,14 +13,13 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="2dp">
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/sign_in_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
             android:enabled="false" />
 
         <Button
@@ -42,7 +41,7 @@
         android:id="@+id/sign_in_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="32dp"
+        android:padding="2dp"
         android:text="Please Sign In" />
 </LinearLayout>

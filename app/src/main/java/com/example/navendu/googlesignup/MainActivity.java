@@ -1,11 +1,15 @@
 package com.example.navendu.googlesignup;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -13,12 +17,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
-import com.google.android.gms.plus.model.people.Person;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements
     private int mSignInProgress;
     private int mSignInError;
     private PendingIntent mSignInIntent;
-
+    private int MY_PERMISSIONS_REQUEST_GET_ACCOUNTS;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements
                 .addApi(Plus.API, Plus.PlusOptions.builder().build())
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addScope(new Scope(Scopes.PROFILE))
+                .addScope(new Scope("email"))
                 .build();
     }
 
@@ -88,10 +90,22 @@ public class MainActivity extends AppCompatActivity implements
         //Indicate that the sign in process is complete
         mSignInProgress = STATE_SIGNED_IN;
 
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.GET_ACCOUNTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.GET_ACCOUNTS},
+                    MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
+        }
         //We are signed in !
         //Retrieve some profile information to personalize our app for the user
-        Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
-        mStatusOutput.setText(String.format("Signed In to G+ as %s", currentUser.getDisplayName()));
+        try {
+            String emailAddress = Plus.AccountApi.getAccountName(mGoogleApiClient);
+            mStatusOutput.setText(String.format("Signed In to G+ as %s", emailAddress));
+        } catch (Exception ex) {
+            String exception = ex.getLocalizedMessage();
+            String exceptionString = exception.toString();
+            Log.i(LOG_TAG, exceptionString);
+        }
     }
 
     @Override
